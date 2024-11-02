@@ -145,7 +145,10 @@ check_command "config.json файл створено"
 echo -e "${green}Ваш файл config.json:${nc}"
 cat config.json
 
-confirm_action "Чи ви зберегли файл config.json і чи все вірно?"
+confirm_action "У файлі config.json все вірно?"
+
+cd $HOME && cd basic-coin-prediction-node
+cp config.example.json config.json
 
 echo -e "${green}Ініціалізуємо воркера...${nc}"
 if [ -f "init.config" ]; then
