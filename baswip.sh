@@ -95,6 +95,7 @@ cat <<EOF > config.json
 EOF
 
 check_command "config.json файл створено"
+echo -e "${green}Ваш файл config.json:${nc}"
 cat config.json
 confirm_action "У файлі config.json все вірно?"
 
@@ -103,9 +104,14 @@ cd $HOME/basic-coin-prediction-node
 check_command "Перехід до каталогу проекту"
 
 # Запуск ініціалізації
-chmod +x init.config
-./init.config
-check_command "Ініціалізація воркера"
+if [ -f "init.config" ]; then
+    chmod +x init.config
+    ./init.config
+    check_command "Ініціалізація воркера"
+else
+    echo -e "${red}Файл init.config не знайдено!${nc}"
+    exit 1
+fi
 
 echo -e "${green}Запускаємо worker...${nc}"
 docker compose pull
