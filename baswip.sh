@@ -24,23 +24,43 @@ confirm_action() {
     done
 }
 
+install_docker_compose() {
+    echo -e "${green}Встановлюємо Docker Compose...${nc}"
+    sudo apt-get install docker-compose -y
+    check_command "Docker Compose встановлено"
+}
+
 echo -e "${green}Встановлення базової моделі...${nc}"
 
 echo -e "${green}Встановлюємо редактор nano...${nc}"
 sudo apt install nano -y
 check_command "Nano встановлено"
 
+# Створюємо .env файл та запитуємо значення
 echo -e "${green}Налаштовуємо .env файл...${nc}"
 
 touch .env
 
 read -p "Введіть значення для TOKEN (ETH): " token
+token=${token:-ETH}  # Використовуємо стандартне значення ETH, якщо не введено
+
 read -p "Введіть значення для TRAINING_DAYS (30): " training_days
+training_days=${training_days:-30}  # Використовуємо стандартне значення 30, якщо не введено
+
 read -p "Введіть значення для TIMEFRAME (4h): " timeframe
+timeframe=${timeframe:-4h}  # Використовуємо стандартне значення 4h, якщо не введено
+
 read -p "Введіть значення для MODEL (SVR): " model
+model=${model:-SVR}  # Використовуємо стандартне значення SVR, якщо не введено
+
 read -p "Введіть значення для REGION (US): " region
+region=${region:-US}  # Використовуємо стандартне значення US, якщо не введено
+
 read -p "Введіть значення для DATA_PROVIDER (binance): " data_provider
+data_provider=${data_provider:-binance}  # Використовуємо стандартне значення binance, якщо не введено
+
 read -p "Введіть значення для CG_API_KEY (вказуємо coingecko api): " cg_api_key
+cg_api_key=${cg_api_key:-}  # Якщо значення не введено, залишається пустим
 
 echo "TOKEN=$token" >> .env
 echo "TRAINING_DAYS=$training_days" >> .env
@@ -55,6 +75,7 @@ cat .env
 
 confirm_action "Чи правильно вказані дані у файлі .env?"
 
+# Створюємо config.json файл та запитуємо значення
 echo -e "${green}Налаштовуємо config.json файл...${nc}"
 
 read -p "Введіть значення для nodeRpc: " node_rpc
@@ -76,11 +97,19 @@ nano config.json
 
 confirm_action "Чи ви зберегли файл config.json і чи все вірно?"
 
+# Перевіряємо, чи існує docker-compose.yml
+if [ ! -f "docker-compose.yml" ]; then
+    echo -e "${red}Файл docker-compose.yml не знайдено.${nc}"
+    install_docker_compose
+    echo -e "${green}Спробуйте ще раз створити файл docker-compose.yml у директорії.${nc}"
+    exit 1
+fi
+
 echo -e "${green}Налаштовуємо скрипт для заміни RPC...${nc}"
 docker compose down
 check_command "Docker зупинено"
 
-cd basic-coin-prediction-node
+cd basic-coin-prediction-node || exit
 check_command "Перехід до директорії basic-coin-prediction-node"
 
 cat <<EOF > script.py
@@ -91,22 +120,18 @@ import subprocess
 def update_config_json(new_node_rpc_url):
     config_file_path = 'config.json'
     
-    # Перевіряємо, чи існує файл config.json
     if not os.path.exists(config_file_path):
         print(f'Error: Файл {config_file_path} не знайдено!')
         return
 
     try:
-        # Читаємо вміст config.json
         with open(config_file_path, 'r') as file:
             config = json.load(file)
 
-        # Оновлюємо поле "nodeRpc" усередині "wallet", якщо воно існує
         if 'wallet' in config and 'nodeRpc' in config['wallet']:
             config['wallet']['nodeRpc'] = new_node_rpc_url
             print(f'Оновлено "nodeRpc" всередині "wallet" на {new_node_rpc_url}')
 
-        # Записуємо оновлений JSON назад у файл
         with open(config_file_path, 'w') as file:
             json.dump(config, file, indent=4)
 
@@ -127,7 +152,6 @@ def run_shell_command(command):
 if __name__ == '__main__':
     new_node_rpc_url = input('Введіть нове посилання на RPC: ').strip()
 
-    # Виконуємо команди
     run_shell_command('docker compose down -v')
     update_config_json(new_node_rpc_url)
     run_shell_command('chmod +x init.config')
