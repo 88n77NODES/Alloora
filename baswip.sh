@@ -33,6 +33,8 @@ install_docker_compose() {
 # Основна частина скрипту
 echo -e "${green}Встановлення базової моделі...${nc}"
 
+cd $HOME/basic-coin-prediction-node
+
 sudo apt install nano -y
 check_command "Nano встановлено"
 
@@ -59,15 +61,11 @@ echo -e "${green}Ваш файл .env:${nc}"
 cat .env
 confirm_action "Чи правильно вказані дані у файлі .env?"
 
-cd $HOME/basic-coin-prediction-node
-
 # Перевірка наявності docker-compose.yml
 if [ ! -f "docker-compose.yml" ]; then
     echo -e "${red}Файл docker-compose.yml не знайдено.${nc}"
     install_docker_compose
 fi
-
-cd
 
 # Налаштування config.json
 echo -e "${green}Налаштовуємо свій config.json...${nc}"
@@ -128,12 +126,6 @@ check_command "config.json файл створено"
 echo -e "${green}Ваш файл config.json:${nc}"
 cat config.json
 confirm_action "У файлі config.json все вірно?"
-
-mv ~/.env ~/basic-coin-prediction-node/
-cd $HOME/basic-coin-prediction-node
-check_command "Перехід до каталогу проекту"
-
-cp config.example.json config.json
 
 chmod +x init.config
 ./init.config
