@@ -1,6 +1,7 @@
 #!/bin/bash
 
 green='\033[0;32m'
+red='\033[0;31m'
 nc='\033[0m'
 
 check_command() {
@@ -28,6 +29,11 @@ echo -e "${green}Встановлення базової моделі...${nc}"
 echo -e "${green}Встановлюємо редактор nano...${nc}"
 sudo apt install nano
 check_command "Nano встановлено"
+
+if [ ! -f ".env.example" ]; then
+    echo -e "${red}Файл .env.example не знайдено! Будь ласка, створіть його.${nc}"
+    exit 1
+fi
 
 echo -e "${green}Налаштовуємо .env файл...${nc}"
 cp .env.example .env
@@ -64,6 +70,7 @@ check_command "Docker зупинено"
 cd basic-coin-prediction-node
 check_command "Перехід до директорії basic-coin-prediction-node"
 
+# Створення script.py
 cat <<EOF > script.py
 import json
 import os
