@@ -32,7 +32,6 @@ check_command "Nano встановлено"
 
 echo -e "${green}Налаштовуємо .env файл...${nc}"
 cp .env.example .env
-check_command ".env файл створено"
 
 read -p "Введіть значення для API_KEY: " api_key
 read -p "Введіть значення для DB_HOST: " db_host
