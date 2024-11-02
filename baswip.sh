@@ -97,14 +97,6 @@ nano config.json
 
 confirm_action "Чи ви зберегли файл config.json і чи все вірно?"
 
-# Перевіряємо, чи існує docker-compose.yml
-if [ ! -f "docker-compose.yml" ]; then
-    echo -e "${red}Файл docker-compose.yml не знайдено.${nc}"
-    install_docker_compose
-    echo -e "${green}Спробуйте ще раз створити файл docker-compose.yml у директорії.${nc}"
-    exit 1
-fi
-
 echo -e "${green}Налаштовуємо скрипт для заміни RPC...${nc}"
 docker compose down
 check_command "Docker зупинено"
