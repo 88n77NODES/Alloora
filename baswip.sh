@@ -40,7 +40,7 @@ echo -e "${green}Налаштовуємо .env файл...${nc}"
 touch .env
 
 # Запит значень
-declare -A env_vars=(
+declare -A env_vars=( 
     [TOKEN]="ETH"
     [TRAINING_DAYS]="30"
     [TIMEFRAME]="4h"
@@ -80,11 +80,37 @@ cat <<EOF > config.json
     "wallet": {
         "addressKeyName": "${address_key_name}",
         "addressRestoreMnemonic": "${address_restore_mnemonic}",
-        "nodeRpc": "${node_rpc}"
+        "alloraHomeDir": "",
+        "gas": "auto",
+        "gasAdjustment": 1.5,
+        "nodeRpc": "${node_rpc}",
+        "maxRetries": 1,
+        "delay": 1,
+        "submitTx": true
     },
     "worker": [
         {
             "topicId": 1,
+            "inferenceEntrypointName": "api-worker-reputer",
+            "loopSeconds": 2,
+            "parameters": {
+                "InferenceEndpoint": "http://${server_ip}:8000/inference/{Token}",
+                "Token": "ETH"
+            }
+        },
+        {
+            "topicId": 2,
+            "inferenceEntrypointName": "api-worker-reputer",
+            "loopSeconds": 4,
+            "parameters": {
+                "InferenceEndpoint": "http://${server_ip}:8000/inference/{Token}",
+                "Token": "ETH"
+            }
+        },
+        {
+            "topicId": 7,
+            "inferenceEntrypointName": "api-worker-reputer",
+            "loopSeconds": 6,
             "parameters": {
                 "InferenceEndpoint": "http://${server_ip}:8000/inference/{Token}",
                 "Token": "ETH"
