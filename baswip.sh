@@ -92,7 +92,7 @@ fi
 read -p "Введіть назву гаманця (YourWalletName): " address_key_name
 read -p "Введіть сід-фразу (YourSeedPhrase): " address_restore_mnemonic
 read -p "Введіть значення для nodeRpc (RPC URL): " node_rpc
-read -p "Введіть IP-адресу сервера для inference: " inference_ip
+read -p "Введіть IP адрес сервера для InferenceEndpoint: " server_ip
 
 # Створюємо новий config.json файл
 cat <<EOF > config.json
@@ -114,7 +114,7 @@ cat <<EOF > config.json
             "inferenceEntrypointName": "api-worker-reputer",
             "loopSeconds": 2,
             "parameters": {
-                "InferenceEndpoint": "http://${inference_ip}:8000/inference/{Token}",
+                "InferenceEndpoint": "http://${server_ip}:8000/inference/{Token}",
                 "Token": "ETH"
             }
         },
@@ -123,7 +123,7 @@ cat <<EOF > config.json
             "inferenceEntrypointName": "api-worker-reputer",
             "loopSeconds": 4,
             "parameters": {
-                "InferenceEndpoint": "http://${inference_ip}:8000/inference/{Token}",
+                "InferenceEndpoint": "http://${server_ip}:8000/inference/{Token}",
                 "Token": "ETH"
             }
         },
@@ -132,7 +132,7 @@ cat <<EOF > config.json
             "inferenceEntrypointName": "api-worker-reputer",
             "loopSeconds": 6,
             "parameters": {
-                "InferenceEndpoint": "http://${inference_ip}:8000/inference/{Token}",
+                "InferenceEndpoint": "http://${server_ip}:8000/inference/{Token}",
                 "Token": "ETH"
             }
         }
