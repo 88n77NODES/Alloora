@@ -100,6 +100,11 @@ if [ ! -f "docker-compose.yml" ]; then
 
 echo -e "${green}Налаштовуємо свій config.json...${nc}"
 
+# Видаляємо старий config.json, якщо існує
+if [ -f "config.json" ]; then
+    rm config.json
+fi
+
 # Створюємо новий config.json файл
 cat <<EOF > config.json
 {
