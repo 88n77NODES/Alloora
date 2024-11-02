@@ -18,6 +18,8 @@ echo -e "${green}Backup completed.${nc}"
 echo -e "${green}Stopping the node...${nc}"
 docker compose down
 
+cd $HOME/basic-coin-prediction-node
+
 # Prompt user for configuration details
 echo -e "${green}Enter the following details:${nc}"
 read -p "Token: " TOKEN
