@@ -30,6 +30,23 @@ install_docker_compose() {
     check_command "Docker Compose встановлено"
 }
 
+create_docker_compose_file() {
+    echo -e "${green}Створюємо docker-compose.yml файл...${nc}"
+    cat <<EOF > docker-compose.yml
+version: '3'
+
+services:
+  worker:
+    image: ваш_образ_докера
+    ports:
+      - "80:80"
+    volumes:
+      - .:/app
+    restart: always
+EOF
+    check_command "docker-compose.yml файл створено"
+}
+
 echo -e "${green}Встановлення базової моделі...${nc}"
 
 echo -e "${green}Встановлюємо редактор nano...${nc}"
@@ -42,25 +59,25 @@ echo -e "${green}Налаштовуємо .env файл...${nc}"
 touch .env
 
 read -p "Введіть значення для TOKEN (ETH): " token
-token=${token:-ETH}  # Використовуємо стандартне значення ETH, якщо не введено
+token=${token:-ETH}
 
 read -p "Введіть значення для TRAINING_DAYS (30): " training_days
-training_days=${training_days:-30}  # Використовуємо стандартне значення 30, якщо не введено
+training_days=${training_days:-30}
 
 read -p "Введіть значення для TIMEFRAME (4h): " timeframe
-timeframe=${timeframe:-4h}  # Використовуємо стандартне значення 4h, якщо не введено
+timeframe=${timeframe:-4h}
 
 read -p "Введіть значення для MODEL (SVR): " model
-model=${model:-SVR}  # Використовуємо стандартне значення SVR, якщо не введено
+model=${model:-SVR}
 
 read -p "Введіть значення для REGION (US): " region
-region=${region:-US}  # Використовуємо стандартне значення US, якщо не введено
+region=${region:-US}
 
 read -p "Введіть значення для DATA_PROVIDER (binance): " data_provider
-data_provider=${data_provider:-binance}  # Використовуємо стандартне значення binance, якщо не введено
+data_provider=${data_provider:-binance}
 
 read -p "Введіть значення для CG_API_KEY (вказуємо coingecko api): " cg_api_key
-cg_api_key=${cg_api_key:-}  # Якщо значення не введено, залишається пустим
+cg_api_key=${cg_api_key:-}
 
 echo "TOKEN=$token" >> .env
 echo "TRAINING_DAYS=$training_days" >> .env
@@ -75,88 +92,77 @@ cat .env
 
 confirm_action "Чи правильно вказані дані у файлі .env?"
 
-# Створюємо config.json файл та запитуємо значення
-echo -e "${green}Налаштовуємо config.json файл...${nc}"
+# Перевіряємо, чи існує docker-compose.yml
+if [ ! -f "docker-compose.yml" ]; then
+    echo -e "${red}Файл docker-compose.yml не знайдено.${nc}"
+    create_docker_compose_file
+    install_docker_compose
+    echo -e "${green}Docker Compose встановлено. Спробуйте ще раз запустити скрипт.${nc}"
+    exit 1
+fi
 
-read -p "Введіть значення для nodeRpc: " node_rpc
-read -p "Введіть значення для wallet.address: " wallet_address
+echo -e "${green}Налаштовуємо свій config.json...${nc}"
 
+# Створюємо новий config.json файл
 cat <<EOF > config.json
 {
     "wallet": {
-        "nodeRpc": "$node_rpc",
-        "address": "$wallet_address"
-    }
+        "addressKeyName": "YourWalletName",
+        "addressRestoreMnemonic": "YourSeedPhrase",
+        "alloraHomeDir": "",
+        "gas": "auto",
+        "gasAdjustment": 1.5,
+        "nodeRpc": "https://allora-rpc.testnet.allora.network",
+        "maxRetries": 1,
+        "delay": 1,
+        "submitTx": true
+    },
+    "worker": [
+        {
+            "topicId": 1,
+            "inferenceEntrypointName": "api-worker-reputer",
+            "loopSeconds": 2,
+            "parameters": {
+                "InferenceEndpoint": "http://inference:8000/inference/{Token}",
+                "Token": "ETH"
+            }
+        },
+        {
+            "topicId": 2,
+            "inferenceEntrypointName": "api-worker-reputer",
+            "loopSeconds": 4,
+            "parameters": {
+                "InferenceEndpoint": "http://inference:8000/inference/{Token}",
+                "Token": "ETH"
+            }
+        },
+        {
+            "topicId": 7,
+            "inferenceEntrypointName": "api-worker-reputer",
+            "loopSeconds": 6,
+            "parameters": {
+                "InferenceEndpoint": "http://inference:8000/inference/{Token}",
+                "Token": "ETH"
+            }
+        }
+    ]
 }
 EOF
 
 check_command "config.json файл створено"
 
-echo -e "${green}Будь ласка, відредагуйте config.json файл.${nc}"
-nano config.json
+# Пропонуємо вказати NodeRpc та YourSeedPhrase
+read -p "Введіть значення для nodeRpc: " node_rpc
+read -p "Введіть значення для YourSeedPhrase: " your_seed_phrase
+
+# Оновлюємо config.json
+jq --arg nodeRpc "$node_rpc" --arg seedPhrase "$your_seed_phrase" \
+    '.wallet.nodeRpc = $nodeRpc | .wallet.addressRestoreMnemonic = $seedPhrase' config.json > tmp.$$.json && mv tmp.$$.json config.json
+
+echo -e "${green}Ваш файл config.json:${nc}"
+cat config.json
 
 confirm_action "Чи ви зберегли файл config.json і чи все вірно?"
-
-echo -e "${green}Налаштовуємо скрипт для заміни RPC...${nc}"
-docker compose down
-check_command "Docker зупинено"
-
-cd basic-coin-prediction-node || exit
-check_command "Перехід до директорії basic-coin-prediction-node"
-
-cat <<EOF > script.py
-import json
-import os
-import subprocess
-
-def update_config_json(new_node_rpc_url):
-    config_file_path = 'config.json'
-    
-    if not os.path.exists(config_file_path):
-        print(f'Error: Файл {config_file_path} не знайдено!')
-        return
-
-    try:
-        with open(config_file_path, 'r') as file:
-            config = json.load(file)
-
-        if 'wallet' in config and 'nodeRpc' in config['wallet']:
-            config['wallet']['nodeRpc'] = new_node_rpc_url
-            print(f'Оновлено "nodeRpc" всередині "wallet" на {new_node_rpc_url}')
-
-        with open(config_file_path, 'w') as file:
-            json.dump(config, file, indent=4)
-
-        print('Зміни успішно збережені в config.json.')
-
-    except json.JSONDecodeError as e:
-        print(f'Помилка читання JSON: {e}')
-    except Exception as e:
-        print(f'Відбулася помилка: {e}')
-
-def run_shell_command(command):
-    try:
-        subprocess.run(command, shell=True, check=True)
-        print(f'Виконана команда: {command}')
-    except subprocess.CalledProcessError as e:
-        print(f'Помилка виконання команди {command}: {e}')
-
-if __name__ == '__main__':
-    new_node_rpc_url = input('Введіть нове посилання на RPC: ').strip()
-
-    run_shell_command('docker compose down -v')
-    update_config_json(new_node_rpc_url)
-    run_shell_command('chmod +x init.config')
-    run_shell_command('./init.config')
-    run_shell_command('docker compose up -d')
-    run_shell_command('docker logs -f worker')
-EOF
-
-check_command "script.py створено"
-
-echo -e "${green}Запускаємо script.py...${nc}"
-python3 script.py
-check_command "script.py виконано"
 
 echo -e "${green}Ініціалізуємо воркера...${nc}"
 chmod +x init.config
