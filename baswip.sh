@@ -59,11 +59,15 @@ echo -e "${green}Ваш файл .env:${nc}"
 cat .env
 confirm_action "Чи правильно вказані дані у файлі .env?"
 
+cd $HOME/basic-coin-prediction-node
+
 # Перевірка наявності docker-compose.yml
 if [ ! -f "docker-compose.yml" ]; then
     echo -e "${red}Файл docker-compose.yml не знайдено.${nc}"
     install_docker_compose
 fi
+
+cd
 
 # Налаштування config.json
 echo -e "${green}Налаштовуємо свій config.json...${nc}"
@@ -131,16 +135,8 @@ check_command "Перехід до каталогу проекту"
 
 cp config.example.json config.json
 
-
-# Запуск ініціалізації
-if [ -f "init.config" ]; then
-    chmod +x init.config
-    ./init.config
-    check_command "Ініціалізація воркера"
-else
-    echo -e "${red}Файл init.config не знайдено!${nc}"
-    exit 1
-fi
+chmod +x init.config
+./init.config
 
 echo -e "${green}Запускаємо worker...${nc}"
 docker compose pull
