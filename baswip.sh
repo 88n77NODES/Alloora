@@ -2,7 +2,7 @@
 
 green='\033[0;32m'
 nc='\033[0m'
-red='\033[0;31m'  # Додано для помилок
+red='\033[0;31m'
 
 check_command() {
     if [ $? -ne 0 ]; then
@@ -27,24 +27,28 @@ confirm_action() {
 echo -e "${green}Встановлення базової моделі...${nc}"
 
 echo -e "${green}Встановлюємо редактор nano...${nc}"
-sudo apt install nano
+sudo apt install nano -y
 check_command "Nano встановлено"
 
 echo -e "${green}Налаштовуємо .env файл...${nc}"
 
-# Збираємо дані для .env файлу
-read -p "Введіть значення для API_KEY: " api_key
-read -p "Введіть значення для DB_HOST: " db_host
-read -p "Введіть значення для DB_USER: " db_user
-read -p "Введіть значення для DB_PASSWORD: " db_password
+touch .env
 
-# Створюємо .env файл і записуємо дані
-{
-    echo "API_KEY=$api_key"
-    echo "DB_HOST=$db_host"
-    echo "DB_USER=$db_user"
-    echo "DB_PASSWORD=$db_password"
-} > .env
+read -p "Введіть значення для TOKEN (наприклад, ETH): " token
+read -p "Введіть значення для TRAINING_DAYS (наприклад, 30): " training_days
+read -p "Введіть значення для TIMEFRAME (наприклад, 4h): " timeframe
+read -p "Введіть значення для MODEL (наприклад, SVR): " model
+read -p "Введіть значення для REGION (наприклад, US): " region
+read -p "Введіть значення для DATA_PROVIDER (наприклад, binance): " data_provider
+read -p "Введіть значення для CG_API_KEY: " cg_api_key
+
+echo "TOKEN=$token" >> .env
+echo "TRAINING_DAYS=$training_days" >> .env
+echo "TIMEFRAME=$timeframe" >> .env
+echo "MODEL=$model" >> .env
+echo "REGION=$region" >> .env
+echo "DATA_PROVIDER=$data_provider" >> .env
+echo "CG_API_KEY=$cg_api_key" >> .env
 
 echo -e "${green}Ваш файл .env:${nc}"
 cat .env
@@ -67,7 +71,6 @@ check_command "Docker зупинено"
 cd basic-coin-prediction-node
 check_command "Перехід до директорії basic-coin-prediction-node"
 
-# Створюємо script.py
 cat <<EOF > script.py
 import json
 import os
@@ -76,18 +79,22 @@ import subprocess
 def update_config_json(new_node_rpc_url):
     config_file_path = 'config.json'
     
+    # Перевіряємо, чи існує файл config.json
     if not os.path.exists(config_file_path):
         print(f'Error: Файл {config_file_path} не знайдено!')
         return
 
     try:
+        # Читаємо вміст config.json
         with open(config_file_path, 'r') as file:
             config = json.load(file)
 
+        # Оновлюємо поле "nodeRpc" усередині "wallet", якщо воно існує
         if 'wallet' in config and 'nodeRpc' in config['wallet']:
             config['wallet']['nodeRpc'] = new_node_rpc_url
             print(f'Оновлено "nodeRpc" всередині "wallet" на {new_node_rpc_url}')
 
+        # Записуємо оновлений JSON назад у файл
         with open(config_file_path, 'w') as file:
             json.dump(config, file, indent=4)
 
@@ -108,6 +115,7 @@ def run_shell_command(command):
 if __name__ == '__main__':
     new_node_rpc_url = input('Введіть нове посилання на RPC: ').strip()
 
+    # Виконуємо команди
     run_shell_command('docker compose down -v')
     update_config_json(new_node_rpc_url)
     run_shell_command('chmod +x init.config')
