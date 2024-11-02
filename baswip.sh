@@ -125,9 +125,12 @@ echo -e "${green}Ваш файл config.json:${nc}"
 cat config.json
 confirm_action "У файлі config.json все вірно?"
 
-# Ініціалізація воркера
+mv ~/.env ~/basic-coin-prediction-node/
 cd $HOME/basic-coin-prediction-node
 check_command "Перехід до каталогу проекту"
+
+cp config.example.json config.json
+
 
 # Запуск ініціалізації
 if [ -f "init.config" ]; then
