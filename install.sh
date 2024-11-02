@@ -13,7 +13,7 @@ custom_model_url=""
 basic_model_url="https://raw.githubusercontent.com/88n77NODES/Allora/main/baswip.sh"  #baswip
 delete_url="https://raw.githubusercontent.com/88n77NODES/Allora/main/delete.sh"  
 
-menu_options=("Встановити" "Скрипт для замінити RPC" "Встановити базову модель" "Створити кастомну модель" "Видалити" "Вийти")
+menu_options=("Встановити" "Скрипт для заміни RPC" "Встановити базову модель" "Створити кастомну модель" "Видалити" "Вийти")
 PS3='Оберіть дію: '
 
 select choice in "${menu_options[@]}"
@@ -23,7 +23,7 @@ do
             echo -e "${green}Встановлення...${nc}"
             bash <(curl -s $setup_url)
             ;;
-        "Скрипт для замінити RPC")
+        "Скрипт для заміни RPC")
             echo -e "${green}Встановлення...${nc}"
             bash <(curl -s $rpc_replace_url)
             ;;
