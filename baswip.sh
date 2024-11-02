@@ -1,8 +1,8 @@
 #!/bin/bash
 
 green='\033[0;32m'
-red='\033[0;31m'
 nc='\033[0m'
+red='\033[0;31m'  # Додано для помилок
 
 check_command() {
     if [ $? -ne 0 ]; then
@@ -31,17 +31,20 @@ sudo apt install nano
 check_command "Nano встановлено"
 
 echo -e "${green}Налаштовуємо .env файл...${nc}"
-cp .env.example .env
 
+# Збираємо дані для .env файлу
 read -p "Введіть значення для API_KEY: " api_key
 read -p "Введіть значення для DB_HOST: " db_host
 read -p "Введіть значення для DB_USER: " db_user
 read -p "Введіть значення для DB_PASSWORD: " db_password
 
-echo "API_KEY=$api_key" >> .env
-echo "DB_HOST=$db_host" >> .env
-echo "DB_USER=$db_user" >> .env
-echo "DB_PASSWORD=$db_password" >> .env
+# Створюємо .env файл і записуємо дані
+{
+    echo "API_KEY=$api_key"
+    echo "DB_HOST=$db_host"
+    echo "DB_USER=$db_user"
+    echo "DB_PASSWORD=$db_password"
+} > .env
 
 echo -e "${green}Ваш файл .env:${nc}"
 cat .env
@@ -64,7 +67,7 @@ check_command "Docker зупинено"
 cd basic-coin-prediction-node
 check_command "Перехід до директорії basic-coin-prediction-node"
 
-# Створення script.py
+# Створюємо script.py
 cat <<EOF > script.py
 import json
 import os
@@ -73,22 +76,18 @@ import subprocess
 def update_config_json(new_node_rpc_url):
     config_file_path = 'config.json'
     
-    # Перевіряємо, чи існує файл config.json
     if not os.path.exists(config_file_path):
         print(f'Error: Файл {config_file_path} не знайдено!')
         return
 
     try:
-        # Читаємо вміст config.json
         with open(config_file_path, 'r') as file:
             config = json.load(file)
 
-        # Оновлюємо поле "nodeRpc" усередині "wallet", якщо воно існує
         if 'wallet' in config and 'nodeRpc' in config['wallet']:
             config['wallet']['nodeRpc'] = new_node_rpc_url
             print(f'Оновлено "nodeRpc" всередині "wallet" на {new_node_rpc_url}')
 
-        # Записуємо оновлений JSON назад у файл
         with open(config_file_path, 'w') as file:
             json.dump(config, file, indent=4)
 
@@ -109,7 +108,6 @@ def run_shell_command(command):
 if __name__ == '__main__':
     new_node_rpc_url = input('Введіть нове посилання на RPC: ').strip()
 
-    # Виконуємо команди
     run_shell_command('docker compose down -v')
     update_config_json(new_node_rpc_url)
     run_shell_command('chmod +x init.config')
