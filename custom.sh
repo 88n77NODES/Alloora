@@ -18,9 +18,6 @@ echo -e "${green}Backup completed.${nc}"
 echo -e "${green}Stopping the node...${nc}"
 docker compose down
 
-# Open .env for editing
-nano .env
-
 # Prompt user for configuration details
 echo -e "${green}Enter the following details:${nc}"
 read -p "Token: " TOKEN
