@@ -7,11 +7,11 @@ wget https://raw.githubusercontent.com/88n77/Logo-88n77/main/logo.sh
 chmod +x logo.sh
 ./logo.sh
 
-setup_url="https://raw.githubusercontent.com/88n77NODES/Allora/main/setup.sh"    
-rpc_replace_url="https://raw.githubusercontent.com/88n77NODES/Allora/main/rpc_replace.sh"  
-custom_model_url="https://raw.githubusercontent.com/88n77NODES/Allora/main/custom.sh" 
-basic_model_url="https://raw.githubusercontent.com/88n77NODES/Allora/main/baswip.sh"  #baswip
-delete_url="https://raw.githubusercontent.com/88n77NODES/Allora/main/delete.sh"  
+setup_url="https://raw.githubusercontent.com/88n77NODES/Allora/main/setup.sh"
+rpc_replace_url="https://raw.githubusercontent.com/88n77NODES/Allora/main/rpc_replace.sh"
+custom_model_url="https://raw.githubusercontent.com/88n77NODES/Allora/main/custom.sh"
+basic_model_url="https://raw.githubusercontent.com/88n77NODES/Allora/main/baswip.sh" #baswip
+delete_url="https://raw.githubusercontent.com/88n77NODES/Allora/main/delete.sh"
 
 menu_options=("Встановити" "Скрипт для заміни RPC" "Встановити базову модель" "Створити кастомну модель" "Видалити" "Вийти")
 PS3='Оберіть дію: '
