@@ -9,3 +9,6 @@ sleep 2
 
 cd basic-coin-prediction-node
 python3 script.py
+
+echo -e "${green}Перевірити логи...${nc}"
+docker logs -f worker
