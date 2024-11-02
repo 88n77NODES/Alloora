@@ -155,10 +155,6 @@ if [ -f "init.config" ]; then
     chmod +x init.config
     ./init.config
     check_command "Ініціалізація воркера"
-else
-    echo -e "${red}Файл init.config не знайдено!${nc}"
-    exit 1
-fi
 
 echo -e "${green}Запускаємо worker...${nc}"
 docker compose pull

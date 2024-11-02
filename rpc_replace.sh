@@ -1,31 +1,60 @@
+echo -e "${green}Встановлюємо скрипт на швидку заміну RPC...${nc}"
 
-green='\033[0;32m'
-red='\033[0;31m'
-nc='\033[0m'
+docker compose down
 
-echo -e "${green}Запускаємо скрипт на зміну RPC...${nc}"
+cd basic-coin-prediction-node
 
-sleep 2
+cat << 'EOF' > script.py
+import json
+import os
+import subprocess
 
-if [ -d "basic-coin-prediction-node" ]; then
-    cd basic-coin-prediction-node || { echo -e "${red}Не вдалося перейти до каталогу!${nc}"; exit 1; }
+def update_config_json(new_node_rpc_url):
+    config_file_path = 'config.json'
+    
+    # Перевіряємо, чи існує файл config.json
+    if not os.path.exists(config_file_path):
+        print(f'Error: Файл {config_file_path} не знайдено!')
+        return
 
-    echo -e "${green}Запускаємо script.py...${nc}"
-    if python3 script.py; then
-        echo -e "${green}Скрипт виконано успішно.${nc}"
-    else
-        echo -e "${red}Помилка при виконанні скрипта!${nc}"
-        exit 1
-    fi
-else
-    echo -e "${red}Каталог basic-coin-prediction-node не знайдено!${nc}"
-    exit 1
-fi
+    try:
+        # Читаємо вміст config.json
+        with open(config_file_path, 'r') as file:
+            config = json.load(file)
 
-echo -e "${green}Перевіряємо логи...${nc}"
-if docker logs -f worker; then
-    echo -e "${green}Логи успішно відображаються.${nc}"
-else
-    echo -e "${red}Не вдалося отримати логи контейнера worker!${nc}"
-    exit 1
-fi
+        # Оновлюємо поле "nodeRpc" усередині "wallet", якщо воно існує
+        if 'wallet' in config and 'nodeRpc' in config['wallet']:
+            config['wallet']['nodeRpc'] = new_node_rpc_url
+            print(f'Оновлено "nodeRpc" всередині "wallet" на {new_node_rpc_url}')
+
+        # Записуємо оновлений JSON назад у файл
+        with open(config_file_path, 'w') as file:
+            json.dump(config, file, indent=4)
+
+        print('Зміни успішно збережені в config.json.')
+
+    except json.JSONDecodeError as e:
+        print(f'Помилка читання JSON: {e}')
+    except Exception as e:
+        print(f'Відбулася помилка: {e}')
+
+def run_shell_command(command):
+    try:
+        subprocess.run(command, shell=True, check=True)
+        print(f'Виконана команда: {command}')
+    except subprocess.CalledProcessError as e:
+        print(f'Помилка виконання команди {command}: {e}')
+
+if __name__ == '__main__':
+    new_node_rpc_url = input('Введіть нове посилання на RPC: ').strip()
+
+    # Виконуємо команди
+    run_shell_command('docker compose down -v')
+    update_config_json(new_node_rpc_url)
+    run_shell_command('chmod +x init.config')
+    run_shell_command('./init.config')
+    run_shell_command('docker compose up -d')
+    run_shell_command('docker logs -f worker')
+EOF
+
+echo -e "${green}Скрипт script.py успішно створено.${nc}"
