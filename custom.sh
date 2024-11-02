@@ -14,13 +14,12 @@ cp config.json config.json.bak
 
 echo -e "${green}Backup completed.${nc}"
 
+cd $HOME/basic-coin-prediction-node
+
 # Stop the node
 echo -e "${green}Stopping the node...${nc}"
 docker compose down
 
-cd $HOME/basic-coin-prediction-node
-
-# Prompt user for configuration details
 echo -e "${green}Enter the following details:${nc}"
 read -p "Token: " TOKEN
 read -p "TRAINING_DAYS: " TRAINING_DAYS

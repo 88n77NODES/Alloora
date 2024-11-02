@@ -2,7 +2,7 @@ echo -e "${green}Встановлюємо скрипт на швидку зам�
 
 docker compose down
 
-cd basic-coin-prediction-node || exit
+cd $HOME/basic-coin-prediction-node 
 
 cat << 'EOF' > script.py
 import json
