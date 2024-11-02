@@ -34,13 +34,13 @@ echo -e "${green}Налаштовуємо .env файл...${nc}"
 
 touch .env
 
-read -p "Введіть значення для TOKEN (наприклад, ETH): " token
-read -p "Введіть значення для TRAINING_DAYS (наприклад, 30): " training_days
-read -p "Введіть значення для TIMEFRAME (наприклад, 4h): " timeframe
-read -p "Введіть значення для MODEL (наприклад, SVR): " model
-read -p "Введіть значення для REGION (наприклад, US): " region
-read -p "Введіть значення для DATA_PROVIDER (наприклад, binance): " data_provider
-read -p "Введіть значення для CG_API_KEY: " cg_api_key
+read -p "Введіть значення для TOKEN (ETH): " token
+read -p "Введіть значення для TRAINING_DAYS (30): " training_days
+read -p "Введіть значення для TIMEFRAME (4h): " timeframe
+read -p "Введіть значення для MODEL (SVR): " model
+read -p "Введіть значення для REGION (US): " region
+read -p "Введіть значення для DATA_PROVIDER (binance): " data_provider
+read -p "Введіть значення для CG_API_KEY (вказуємо coingecko api): " cg_api_key
 
 echo "TOKEN=$token" >> .env
 echo "TRAINING_DAYS=$training_days" >> .env
@@ -55,8 +55,20 @@ cat .env
 
 confirm_action "Чи правильно вказані дані у файлі .env?"
 
-echo -e "${green}Копіюємо config.json файл...${nc}"
-cp config.example.json config.json
+echo -e "${green}Налаштовуємо config.json файл...${nc}"
+
+read -p "Введіть значення для nodeRpc: " node_rpc
+read -p "Введіть значення для wallet.address: " wallet_address
+
+cat <<EOF > config.json
+{
+    "wallet": {
+        "nodeRpc": "$node_rpc",
+        "address": "$wallet_address"
+    }
+}
+EOF
+
 check_command "config.json файл створено"
 
 echo -e "${green}Будь ласка, відредагуйте config.json файл.${nc}"
