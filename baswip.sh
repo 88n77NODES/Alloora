@@ -97,9 +97,6 @@ if [ ! -f "docker-compose.yml" ]; then
     echo -e "${red}Файл docker-compose.yml не знайдено.${nc}"
     create_docker_compose_file
     install_docker_compose
-    echo -e "${green}Docker Compose встановлено. Спробуйте ще раз запустити скрипт.${nc}"
-    exit 1
-fi
 
 echo -e "${green}Налаштовуємо свій config.json...${nc}"
 
