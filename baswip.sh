@@ -30,7 +30,6 @@ install_docker_compose() {
     check_command "Docker Compose встановлено"
 }
 
-# Основна частина скрипту
 echo -e "${green}Встановлення базової моделі...${nc}"
 
 cd $HOME/basic-coin-prediction-node
@@ -41,7 +40,6 @@ check_command "Nano встановлено"
 echo -e "${green}Налаштовуємо .env файл...${nc}"
 touch .env
 
-# Запит значень
 declare -A env_vars=( 
     [TOKEN]="ETH"
     [TRAINING_DAYS]="30"
@@ -61,13 +59,11 @@ echo -e "${green}Ваш файл .env:${nc}"
 cat .env
 confirm_action "Чи правильно вказані дані у файлі .env?"
 
-# Перевірка наявності docker-compose.yml
 if [ ! -f "docker-compose.yml" ]; then
     echo -e "${red}Файл docker-compose.yml не знайдено.${nc}"
     install_docker_compose
 fi
 
-# Налаштування config.json
 echo -e "${green}Налаштовуємо свій config.json...${nc}"
 [ -f "config.json" ] && rm config.json
 
@@ -76,7 +72,6 @@ read -p "Введіть сід-фразу: " address_restore_mnemonic
 read -p "Введіть RPC URL: " node_rpc
 read -p "Введіть IP адрес сервера для InferenceEndpoint: " server_ip
 
-# Створюємо config.json
 cat <<EOF > config.json
 {
     "wallet": {
