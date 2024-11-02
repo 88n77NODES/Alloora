@@ -30,11 +30,6 @@ echo -e "${green}Встановлюємо редактор nano...${nc}"
 sudo apt install nano
 check_command "Nano встановлено"
 
-if [ ! -f ".env.example" ]; then
-    echo -e "${red}Файл .env.example не знайдено! Будь ласка, створіть його.${nc}"
-    exit 1
-fi
-
 echo -e "${green}Налаштовуємо .env файл...${nc}"
 cp .env.example .env
 check_command ".env файл створено"
