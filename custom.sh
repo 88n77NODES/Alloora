@@ -49,3 +49,6 @@ chmod +x init.config
 # Start the node
 echo -e "${green}Starting the node...${nc}"
 docker compose up -d
+
+echo -e "${green}Перевірка логів worker...${nc}"
+docker logs -f worker
