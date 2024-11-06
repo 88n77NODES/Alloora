@@ -6,11 +6,9 @@ nc='\033[0m'
 
 echo -e "${green}### Автоматичний скрипт для швидкої зміни RPC ###${nc}"
 
-# Переходимо до потрібної директорії
 echo -e "${green}Переходимо до директорії allora...${nc}"
 cd basic-coin-prediction-node || { echo -e "${red}Не вдається перейти до директорії!${nc}"; exit 1; }
 
-# Створюємо або редагуємо файл script.py
 echo -e "${green}Відкриття script.py для редагування...${nc}"
 cat <<EOL > script.py
 import json
